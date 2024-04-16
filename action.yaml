@@ -22,6 +22,13 @@ outputs:
 runs:
   using: 'composite'
   steps:
+    - name: DEBUG
+      env:
+        GITHUB: ${{ toJson(github) }}
+      run: |
+        echo "$GITHUB" | jq
+        exit 1
+
     - name: Get Next Version
       id: semver
       uses: ietf-tools/semver-action@v1
