@@ -27,7 +27,7 @@ runs:
       env:
         BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
       run: |
-        echo "BRANCH_NAME=$BRANCH_NAME" >> "$GITHUB_ENV
+        echo "BRANCH_NAME=$BRANCH_NAME" >> $GITHUB_ENV
 
     - name: Get Next Version
       id: semver
