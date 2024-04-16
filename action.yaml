@@ -41,12 +41,13 @@ runs:
       id: set
       shell: bash
       env:
-        NEXT: ${{ steps.semver.outputs.next }}
+        NEXT: ${{ steps.semver.outputs.nextStrict }}
+        GITHUB_SHA_SHORT: ${{ substr(github.sha, 0, 8) }}
       run: |
        echo "current=${{ steps.semver.outputs.current }}" >> "$GITHUB_OUTPUT"
-       echo "nextMajor=${{ steps.semver.outputs.nextMajor }}" >> "$GITHUB_OUTPUT"
+       echo "nextMajor=${{ steps.semver.outputs.nextMajorStrict }}" >> "$GITHUB_OUTPUT"
 
        if [[ "$BRANCH_NAME" != "master" ]]; then
-         NEXT="$NEXT-$GITHUB_SHA"
+         NEXT="$NEXT-$GITHUB_SHA_SHORT"
        fi
        echo "next=$NEXT" >> "$GITHUB_OUTPUT"
