@@ -1,0 +1,31 @@
+name: Version
+description: Get the next version based on the latest tag
+
+author: "CDQ AG"
+branding:
+  icon: 'arrow-up-circle'
+  color: 'red'
+
+outputs:
+  current:
+    description: The current version
+    value: ${{ steps.semver.outputs.current }}
+
+  next:
+    description: Next (new) version
+    value: ${{ steps.semver.outputs.next }}
+
+  nextMajor:
+    description: Next (new) major version
+    value: ${{ steps.semver.outputs.nextMajor }}
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Get Next Version
+      id: semver
+      uses: ietf-tools/semver-action@v1
+      with:
+        token: ${{ github.token }}
+        branch: master
+        noVersionBumpBehavior: patch

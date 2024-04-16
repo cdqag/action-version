@@ -1,2 +1,3 @@
-# action-version
-Action Version
+# Action Version
+
+Action that does the versioning.
