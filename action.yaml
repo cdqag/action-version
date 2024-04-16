@@ -9,15 +9,15 @@ branding:
 outputs:
   current:
     description: The current version
-    value: ${{ steps.semver.outputs.current }}
+    value: ${{ steps.set.outputs.current }}
 
   next:
     description: Next (new) version
-    value: ${{ steps.semver.outputs.next }}
+    value: ${{ steps.set.outputs.next }}
 
   nextMajor:
     description: Next (new) major version
-    value: ${{ steps.semver.outputs.nextMajor }}
+    value: ${{ steps.set.outputs.nextMajor }}
 
 runs:
   using: 'composite'
@@ -27,5 +27,20 @@ runs:
       uses: ietf-tools/semver-action@v1
       with:
         token: ${{ github.token }}
-        branch: master
+        branch: ${{ github.ref_name }}
         noVersionBumpBehavior: patch
+
+    - name: Set Outputs
+      id: set
+      shell: bash
+      env:
+        BRANCH_NAME: ${{ github.ref_name }}
+        NEXT: ${{ steps.semver.outputs.next }}
+      run: |
+       echo "current=${{ steps.semver.outputs.current }}" >> "$GITHUB_OUTPUT"
+       echo "nextMajor=${{ steps.semver.outputs.nextMajor }}" >> "$GITHUB_OUTPUT"
+
+       if [[ "$BRANCH_NAME" != "master" ]]; then
+         NEXT="$NEXT-$GITHUB_SHA"
+       fi
+       echo "next=$NEXT" >> "$GITHUB_OUTPUT"
