@@ -22,27 +22,25 @@ outputs:
 runs:
   using: 'composite'
   steps:
-    - name: DEBUG
-      env:
-        GITHUB: ${{ toJson(github) }}
+    - name: Set variables
       shell: bash
+      env:
+        BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
       run: |
-        echo "$GITHUB" | jq
-        exit 1
+        echo "BRANCH_NAME=$BRANCH_NAME" >> "$GITHUB_ENV
 
     - name: Get Next Version
       id: semver
       uses: ietf-tools/semver-action@v1
       with:
         token: ${{ github.token }}
-        branch: ${{ github.ref_name }}
+        branch: ${{ env.BRANCH_NAME }}
         noVersionBumpBehavior: patch
 
     - name: Set Outputs
       id: set
       shell: bash
       env:
-        BRANCH_NAME: ${{ github.ref_name }}
         NEXT: ${{ steps.semver.outputs.next }}
       run: |
        echo "current=${{ steps.semver.outputs.current }}" >> "$GITHUB_OUTPUT"
