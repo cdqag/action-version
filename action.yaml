@@ -55,5 +55,5 @@ runs:
         fi
         echo "next=$NEXT" >> "$GITHUB_OUTPUT"
 
-        NEXT_PEP440=${NEXT//-/+}
+        NEXT_PEP440=$(echo "$NEXT" | sed 's/-/+/g')
         echo "nextPep440=$NEXT_PEP440" >> "$GITHUB_OUTPUT"
