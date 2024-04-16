@@ -15,6 +15,10 @@ outputs:
     description: Next (new) version
     value: ${{ steps.set.outputs.next }}
 
+  nextPep440:
+    description: Next (new) version (PEP440 compliant)
+    value: ${{ steps.set.outputs.nextPep440 }}
+
   nextMajor:
     description: Next (new) major version
     value: ${{ steps.set.outputs.nextMajor }}
@@ -43,10 +47,13 @@ runs:
       env:
         NEXT: ${{ steps.semver.outputs.nextStrict }}
       run: |
-       echo "current=${{ steps.semver.outputs.current }}" >> "$GITHUB_OUTPUT"
-       echo "nextMajor=${{ steps.semver.outputs.nextMajorStrict }}" >> "$GITHUB_OUTPUT"
+        echo "current=${{ steps.semver.outputs.current }}" >> "$GITHUB_OUTPUT"
+        echo "nextMajor=${{ steps.semver.outputs.nextMajorStrict }}" >> "$GITHUB_OUTPUT"
 
-       if [[ "$BRANCH_NAME" != "master" ]]; then
-         NEXT="$NEXT-${GITHUB_SHA:0:8}"
-       fi
-       echo "next=$NEXT" >> "$GITHUB_OUTPUT"
+        if [[ "$BRANCH_NAME" != "master" ]]; then
+          NEXT="$NEXT-${GITHUB_SHA:0:8}"
+        fi
+        echo "next=$NEXT" >> "$GITHUB_OUTPUT"
+
+        NEXT_PEP440=${NEXT//-/+}
+        echo "nextPep440=$NEXT_PEP440" >> "$GITHUB_OUTPUT"
