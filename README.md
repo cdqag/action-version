@@ -2,6 +2,12 @@
 
 Action that does the versioning according to [Conventional Commits 1.0](https://www.conventionalcommits.org/en/v1.0.0/) and [Semantic Versioning 2.0.0](https://semver.org/spec/v2.0.0.html).
 
+## Prerequisites
+
+Environment Variables:
+
+* `BRANCH_NAME` - current branch name; either use [cdqag/action-init](https://github.com/cdqag/action-init) or set it manually
+
 ## Usage
 
 ```yaml
