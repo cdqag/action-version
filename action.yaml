@@ -6,12 +6,6 @@ branding:
   icon: 'arrow-up-circle'
   color: 'red'
 
-inputs:
-  branch-name:
-    description: The branch name
-    required: true
-    default: ${{ env.BRANCH_NAME }}
-
 outputs:
   current:
     description: The current version
@@ -32,19 +26,26 @@ outputs:
 runs:
   using: 'composite'
   steps:
+    - name: Check Prerequisites
+      shell: bash
+      run: |
+        if [[ -z "$BRANCH_NAME" ]]; then
+          echo "This action requires env.BRANCH_NAME to be set. Please either use cdqag/action-init, or manualy set env.BRANCH_NAME."
+          exit 1
+        fi
+
     - name: Get Next Version
       id: semver
       uses: ietf-tools/semver-action@v1
       with:
         token: ${{ github.token }}
-        branch: ${{ inputs.branch-name }}
+        branch: ${{ env.BRANCH_NAME }}
         noVersionBumpBehavior: patch
 
     - name: Set Outputs
       id: set
       shell: bash
       env:
-        BRANCH_NAME: ${{ inputs.branch-name }}
         NEXT: ${{ steps.semver.outputs.nextStrict }}
       run: |
         echo "current=${{ steps.semver.outputs.current }}" >> "$GITHUB_OUTPUT"
