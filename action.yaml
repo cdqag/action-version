@@ -6,22 +6,10 @@ branding:
   icon: 'arrow-up-circle'
   color: 'red'
 
-outputs:
-  current:
-    description: The current version
-    value: ${{ steps.set.outputs.current }}
-
-  next:
-    description: Next (new) version
-    value: ${{ steps.set.outputs.next }}
-
-  nextPep440:
-    description: Next (new) version (PEP440 compliant)
-    value: ${{ steps.set.outputs.nextPep440 }}
-
-  nextMajor:
-    description: Next (new) major version
-    value: ${{ steps.set.outputs.nextMajor }}
+inputs:
+  pep440:
+    description: 'The next version in PEP440 format'
+    default: 'false'
 
 runs:
   using: 'composite'
@@ -46,15 +34,17 @@ runs:
       id: set
       shell: bash
       env:
+        PEP440: ${{ inputs.pep440 }}
         NEXT: ${{ steps.semver.outputs.nextStrict }}
       run: |
-        echo "current=${{ steps.semver.outputs.current }}" >> "$GITHUB_OUTPUT"
-        echo "nextMajor=${{ steps.semver.outputs.nextMajorStrict }}" >> "$GITHUB_OUTPUT"
+        echo "CURRENT_VERSION=${{ steps.semver.outputs.current }}" >> "$GITHUB_ENV"
+        echo "NEW_MAJOR_VERSION=${{ steps.semver.outputs.nextMajorStrict }}" >> "$GITHUB_ENV"
 
         if [[ "$BRANCH_NAME" != "master" ]]; then
           NEXT="$NEXT-${GITHUB_SHA:0:8}"
         fi
-        echo "next=$NEXT" >> "$GITHUB_OUTPUT"
-
-        NEXT_PEP440=$(echo "$NEXT" | sed 's/-/+/g')
-        echo "nextPep440=$NEXT_PEP440" >> "$GITHUB_OUTPUT"
+        
+        if [[ "$PEP440" != "true" ]]; then
+          NEXT=$(echo "$NEXT" | sed 's/-/+/g')
+        fi
+        echo "NEW_VERSION=$NEXT" >> "$GITHUB_ENV"
