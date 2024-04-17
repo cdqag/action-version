@@ -6,6 +6,12 @@ branding:
   icon: 'arrow-up-circle'
   color: 'red'
 
+inputs:
+  branch-name:
+    description: The branch name
+    required: true
+    default: ${{ env.BRANCH_NAME }}
+
 outputs:
   current:
     description: The current version
@@ -26,25 +32,19 @@ outputs:
 runs:
   using: 'composite'
   steps:
-    - name: Set variables
-      shell: bash
-      env:
-        BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
-      run: |
-        echo "BRANCH_NAME=$BRANCH_NAME" >> $GITHUB_ENV
-
     - name: Get Next Version
       id: semver
       uses: ietf-tools/semver-action@v1
       with:
         token: ${{ github.token }}
-        branch: ${{ env.BRANCH_NAME }}
+        branch: ${{ inputs.branch-name }}
         noVersionBumpBehavior: patch
 
     - name: Set Outputs
       id: set
       shell: bash
       env:
+        BRANCH_NAME: ${{ inputs.branch-name }}
         NEXT: ${{ steps.semver.outputs.nextStrict }}
       run: |
         echo "current=${{ steps.semver.outputs.current }}" >> "$GITHUB_OUTPUT"
