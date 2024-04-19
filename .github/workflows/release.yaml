@@ -1,0 +1,14 @@
+name: Release
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  release:
+    runs-on: hosted-runner
+    steps:
+      - uses: cdqag/action-init@v1
+      - uses: cdqag/action-version@v1
+      - uses: cdqag/action-release-tag@v1
