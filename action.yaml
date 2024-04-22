@@ -44,7 +44,7 @@ runs:
           NEXT="$NEXT-${GITHUB_SHA:0:8}"
         fi
         
-        if [[ "$PEP440" != "true" ]]; then
+        if [[ "$PEP440" == "true" ]]; then
           NEXT=$(echo "$NEXT" | sed 's/-/+/g')
         fi
         echo "NEW_VERSION=$NEXT" >> "$GITHUB_ENV"
