@@ -12,3 +12,6 @@ jobs:
       - uses: cdqag/action-init@v1
       - uses: cdqag/action-version@v1
       - uses: cdqag/action-release-tag@v1
+      - uses: cdqag/update-majorver@v1
+        with:
+          static_major_version: "v${{ env.NEW_MAJOR_VERSION }}"
