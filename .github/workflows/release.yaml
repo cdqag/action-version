@@ -9,9 +9,32 @@ jobs:
   release:
     runs-on: hosted-runner
     steps:
-      - uses: cdqag/action-init@v1
-      - uses: cdqag/action-version@v1
-      - uses: cdqag/action-release-tag@v1
-      - uses: cdqag/update-majorver@v1
+      - name: Get next version
+        id: semver
+        uses: ietf-tools/semver-action@v1
         with:
-          static_major_version: "v${{ env.NEW_MAJOR_VERSION }}"
+          token: ${{ github.token }}
+          noVersionBumpBehavior: patch
+
+      - name: Create Changelog
+        id: changelog
+        uses: requarks/changelog-action@v1
+        with:
+          token: ${{ github.token }}
+          fromTag: ${{ github.ref_name }}
+          toTag: ${{ steps.semver.outputs.current }}
+          writeToFile: false
+          excludeTypes: build,docs,style
+          includeInvalidCommits: true
+
+      - name: Release
+        uses: ncipollo/release-action@v1
+        with:
+          token: ${{ github.token }}
+          tag: ${{ steps.semver.outputs.next }}
+          body: ${{ steps.changelog.outputs.changes }}
+
+      - name: Update major version tag
+        uses: cdqag/update-majorver@v1
+        with:
+          static_major_version: ${{ steps.semver.outputs.nextMajor }}
