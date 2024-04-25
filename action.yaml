@@ -11,6 +11,17 @@ inputs:
     description: 'The next version in PEP440 format'
     default: 'false'
 
+outputs:
+  current-version:
+    description: 'The current version'
+    value: ${{ steps.set.outputs.current-version }}
+  new-major-version:
+    description: 'The next major version'
+    value: ${{ steps.set.outputs.new-major-version }}
+  new-version:
+    description: 'The next version'
+    value: ${{ steps.set.outputs.new-version }}
+
 runs:
   using: 'composite'
   steps:
@@ -38,7 +49,10 @@ runs:
         NEXT: ${{ steps.semver.outputs.nextStrict }}
       run: |
         echo "CURRENT_VERSION=${{ steps.semver.outputs.current }}" >> "$GITHUB_ENV"
+        echo "current-version=$CURRENT_VERSION" >> "$GITHUB_OUTPUT"
+
         echo "NEW_MAJOR_VERSION=${{ steps.semver.outputs.nextMajorStrict }}" >> "$GITHUB_ENV"
+        echo "new-major-version=$NEW_MAJOR_VERSION" >> "$GITHUB_OUTPUT"
 
         if [[ "$BRANCH_NAME" != "master" ]]; then
           NEXT="$NEXT-${GITHUB_SHA:0:8}"
@@ -48,3 +62,4 @@ runs:
           NEXT=$(echo "$NEXT" | sed 's/-/+/g')
         fi
         echo "NEW_VERSION=$NEXT" >> "$GITHUB_ENV"
+        echo "new-version=$NEXT" >> "$GITHUB_OUTPUT"

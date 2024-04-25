@@ -24,6 +24,10 @@ Environment Variables:
 
 ### Outputs
 
+* `current-version` - current detected version
+* `new-version` - new calculated version
+* `new-major-version` - new calculated major version
+
 #### Environment Variables
 
 * `CURRENT_VERSION` - current detected version
