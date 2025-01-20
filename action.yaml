@@ -46,13 +46,15 @@ runs:
       shell: bash
       env:
         PEP440: ${{ inputs.pep440 }}
+        CURRENT: ${{ steps.semver.outputs.current }}
         NEXT: ${{ steps.semver.outputs.nextStrict }}
+        NEXT_MAJOR: ${{ steps.semver.outputs.nextMajorStrict }}
       run: |
-        echo "CURRENT_VERSION=${{ steps.semver.outputs.current }}" >> "$GITHUB_ENV"
-        echo "current-version=$CURRENT_VERSION" >> "$GITHUB_OUTPUT"
+        echo "CURRENT_VERSION=$CURRENT" >> "$GITHUB_ENV"
+        echo "current-version=$CURRENT" >> "$GITHUB_OUTPUT"
 
-        echo "NEW_MAJOR_VERSION=${{ steps.semver.outputs.nextMajorStrict }}" >> "$GITHUB_ENV"
-        echo "new-major-version=$NEW_MAJOR_VERSION" >> "$GITHUB_OUTPUT"
+        echo "NEW_MAJOR_VERSION=$NEXT_MAJOR" >> "$GITHUB_ENV"
+        echo "new-major-version=$NEXT_MAJOR" >> "$GITHUB_OUTPUT"
 
         if [[ "$BRANCH_NAME" != "master" ]]; then
           NEXT="$NEXT-${GITHUB_SHA:0:8}"
