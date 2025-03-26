@@ -1,5 +1,5 @@
 name: Version
-description: Get the next version based on the latest tag
+description: Get the next SemVer version based Conventional Commits
 
 author: "CDQ AG"
 branding:
@@ -7,17 +7,19 @@ branding:
   color: 'red'
 
 inputs:
-  pep440:
-    description: 'The next version in PEP440 format'
+  pep440-compliant:
+    description: 'Should next version be PEP440 compliant'
     default: 'false'
 
 outputs:
   current-version:
     description: 'The current version'
     value: ${{ steps.set.outputs.current-version }}
+
   new-major-version:
     description: 'The next major version'
     value: ${{ steps.set.outputs.new-major-version }}
+    
   new-version:
     description: 'The next version'
     value: ${{ steps.set.outputs.new-version }}
@@ -25,43 +27,38 @@ outputs:
 runs:
   using: 'composite'
   steps:
-    - name: Check Prerequisites
-      shell: bash
-      run: |
-        if [[ -z "$BRANCH_NAME" ]]; then
-          echo "This action requires env.BRANCH_NAME to be set. Please either use cdqag/action-init, or manualy set env.BRANCH_NAME."
-          exit 1
-        fi
-
     - name: Get Next Version
       id: semver
       uses: ietf-tools/semver-action@v1
       with:
         token: ${{ github.token }}
-        branch: ${{ env.BRANCH_NAME }}
+        branch: ${{ github.head_ref || github.ref_name }}
         noVersionBumpBehavior: patch
 
     - name: Set Outputs
       id: set
       shell: bash
       env:
-        PEP440: ${{ inputs.pep440 }}
-        CURRENT: ${{ steps.semver.outputs.current }}
-        NEXT: ${{ steps.semver.outputs.nextStrict }}
-        NEXT_MAJOR: ${{ steps.semver.outputs.nextMajorStrict }}
+        BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
+        DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+        PEP440_COMPLIANT: ${{ inputs.pep440-compliant }}
+        CURRENT_VERSION: ${{ steps.semver.outputs.current }}
+        NEXT_VERSION: ${{ steps.semver.outputs.nextStrict }}
+        NEXT_MAJOR_VERSION: ${{ steps.semver.outputs.nextMajorStrict }}
       run: |
-        echo "CURRENT_VERSION=$CURRENT" >> "$GITHUB_ENV"
-        echo "current-version=$CURRENT" >> "$GITHUB_OUTPUT"
+        echo "current-version=$CURRENT_VERSION" >> "$GITHUB_OUTPUT"
+        echo "CURRENT_VERSION=$CURRENT_VERSION" >> "$GITHUB_ENV"
 
-        echo "NEW_MAJOR_VERSION=$NEXT_MAJOR" >> "$GITHUB_ENV"
-        echo "new-major-version=$NEXT_MAJOR" >> "$GITHUB_OUTPUT"
+        echo "new-major-version=$NEXT_MAJOR_VERSION" >> "$GITHUB_OUTPUT"
+        echo "NEW_MAJOR_VERSION=$NEXT_MAJOR_VERSION" >> "$GITHUB_ENV"
 
-        if [[ "$BRANCH_NAME" != "master" ]]; then
-          NEXT="$NEXT-${GITHUB_SHA:0:8}"
+        if [[ "$BRANCH_NAME" != "$DEFAULT_BRANCH" ]]; then
+          NEXT_VERSION="$NEXT_VERSION-${GITHUB_SHA:0:8}"
         fi
         
-        if [[ "$PEP440" == "true" ]]; then
-          NEXT=$(echo "$NEXT" | sed 's/-/+/g')
+        if [[ "$PEP440_COMPLIANT" == "true" ]]; then
+          NEXT_VERSION=$(echo "$NEXT_VERSION" | sed 's/-/+/g')
         fi
-        echo "NEW_VERSION=$NEXT" >> "$GITHUB_ENV"
-        echo "new-version=$NEXT" >> "$GITHUB_OUTPUT"
+
+        echo "new-version=$NEXT_VERSION" >> "$GITHUB_OUTPUT"
+        echo "NEW_VERSION=$NEXT_VERSION" >> "$GITHUB_ENV"

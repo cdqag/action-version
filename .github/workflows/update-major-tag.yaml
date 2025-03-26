@@ -1,5 +1,4 @@
 name: 🔂 Update Major Tag
-
 on:
   release:
     types:
